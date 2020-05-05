@@ -1,9 +1,11 @@
 // Creating variable for creating an array 
 // Creating variable for the clear button
-var drawing = [], clear;
+var drawing = [],drawingArray, clear, saveButton;
 var database,painterCount;
 var description,greeting,startButton;
 var gameState = "formPage";
+var nameBar,playerName,suggestion;
+var paintings = 0;
 
 function updateCount(count){
   database.ref('/').update({
@@ -16,11 +18,15 @@ function setup() {
   createCanvas(1360,620);
 
   greeting = createElement("h1","World Canvas");
-  greeting.position(width/2-120,height/2-100);
-  description = createElement("h3","The world is our canvas");
-  description.position(width/2-115,height/2);
+  greeting.position(width/2-120,height/2-330);
+  description = createElement("h2","The world is our canvas");
+  description.position(width/2-150,height/2);
   startButton = createButton("Start painting");
-  startButton.position(width/2-70,height/2-30);
+  startButton.position(width/2-70,height/2-230);
+  nameBar = createInput("name");
+  nameBar.position(width/2-110,height/2-260);
+  suggestion = createElement("h3","please enter the name so that it is easy to find your painting");
+  suggestion.position(450,120);
 
   painterCount = database.ref('painters');
   painterCount.on('value',(data)=>{
@@ -28,20 +34,16 @@ function setup() {
   });
 
   startButton.mousePressed(()=>{
-    painterCount += 1;
     gameState = "draw";
+    playerName = nameBar.value();
+    nameBar.hide();
     greeting.hide();
     description.hide();
-    startButton.hide();
+    startButton.hide();   
+    suggestion.hide();
+    painterCount += 1;
     updateCount(painterCount);
   });
-
-  /*
-  var saveRef = "artGallery/artist" + painterCount;
-  database.ref(saveRef).set({
-    drawing : drawing
-  })
-*/
 
 }
 
@@ -53,6 +55,8 @@ function draw() {
     // Making a clear button
     clear = createButton("clear");
     clear.position(50,10);
+    saveButton = createButton("save");
+    saveButton.position(200,10);
 
     // Drawing the boundaries
     rectMode(CENTER);
@@ -89,15 +93,28 @@ function draw() {
     // Clearing the canvas on pressing the clear button
     clear.mousePressed(()=>{
       drawing = [];
-    })
+      drawingArray = [];
+    });
+
+    saveButton.mousePressed(()=>{     
+      paintings += 1;
+      var saveRef = "artGallery/artist -" + playerName + paintings;
+      database.ref(saveRef).set({
+      drawing : drawing
+      });
+
+    });
 
     // Just to indicate the artist about the clear button
     textSize(20)
     textAlign(CENTER);
     text("Press this to",80,55);
     text("Clear the canvas",80,80);
+
   }
+
   console.log(painterCount);
- 
+  console.log(playerName);
+
   drawSprites();
 }
