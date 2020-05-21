@@ -1,6 +1,6 @@
 // Creating variable for creating an array 
 // Creating variable for the clear button
-var drawing = [],drawingArray, clear, saveButton;
+var drawing = [], clear, saveButton;
 var database,painterCount;
 var description,greeting,startButton;
 var gameState = "formPage";
@@ -11,6 +11,19 @@ function updateCount(count){
   database.ref('/').update({
     painters : count
   });
+}
+
+function getCurrentPainting(){
+  var currentPaintingRef = "currentPainting";
+  database.ref(currentPaintingRef).set({
+    painting : drawing
+  });
+
+  drawing = database.ref('currentPainting/painting');
+  drawing.on("value",(data)=>{
+    drawing = data.val();
+  });
+  
 }
 
 function setup() {
@@ -51,6 +64,9 @@ function draw() {
   background(230);  
 
   if(gameState === "draw"){
+
+    getCurrentPainting();
+    //paintCurrentPainting();
 
     // Making a clear button
     clear = createButton("clear");
@@ -93,7 +109,6 @@ function draw() {
     // Clearing the canvas on pressing the clear button
     clear.mousePressed(()=>{
       drawing = [];
-      drawingArray = [];
     });
 
     saveButton.mousePressed(()=>{     
@@ -111,10 +126,8 @@ function draw() {
     text("Press this to",80,55);
     text("Clear the canvas",80,80);
 
+    
   }
-
-  console.log(painterCount);
-  console.log(playerName);
 
   drawSprites();
 }
